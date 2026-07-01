@@ -403,7 +403,7 @@ static void hookWeChat(void) {
         SEL init = @selector(initWithFrame:);
         Method m = class_getInstanceMethod(mpAd, init);
         if (m) {
-            IMP newImp = imp_implementationWithBlock(^(id self, CGRect f) {
+            IMP newImp = imp_implementationWithBlock(^id(id self, CGRect f) {
                 if (g_blockBanner) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self setHidden:YES];
@@ -478,7 +478,7 @@ static void hookQQ(void) {
             m = class_getInstanceMethod(qqSplash, init);
         }
         if (m) {
-            IMP newImp = imp_implementationWithBlock(^(id self) {
+            IMP newImp = imp_implementationWithBlock(^id(id self) {
                 if (g_blockSplashAd) {
                     NLog(@"🚫 QQ开屏已拦截 — 跳过广告页");
                     return nil;
@@ -589,7 +589,7 @@ static void hookDouyin(void) {
         SEL init = @selector(initWithFrame:);
         Method m = class_getInstanceMethod(dyLiveAd, init);
         if (m) {
-            IMP newImp = imp_implementationWithBlock(^(id self, CGRect f) {
+            IMP newImp = imp_implementationWithBlock(^id(id self, CGRect f) {
                 if (g_blockBanner) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self setHidden:YES];
