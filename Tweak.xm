@@ -8,8 +8,19 @@
 //
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <CoreMotion/CoreMotion.h>
 #import <objc/runtime.h>
 #import <dlfcn.h>
+
+// Forward declarations
+static void hookBytedance(void);
+static void hookGDT(void);
+static void hookBaidu(void);
+static void hookKuaishou(void);
+static void hookSigmob(void);
+static void hookAdMob(void);
+static void hookWeChat(void);
+static void hookAdSDKs(void);
 
 // ============================================================
 // 全局开关 — 可通过偏好设置控制
@@ -79,26 +90,24 @@ static void hookBytedance(void) {
     if (!splashClass) splashClass = NSClassFromString(@"CSJSplashView");
     if (splashClass) {
         NLog(@"✓ 穿山甲开屏 hook 就绪");
-        // Hook init methods — 让广告对象创建后立即消失
-        SEL inits[] = {@selector(initWithSlotID:frame:), @selector(initWithSlotID:adSize:)};
-        for (int i = 0; i < 2; i++) {
-            Method m = class_getInstanceMethod(splashClass, inits[i]);
-            if (m) {
-                IMP orig = method_getImplementation(m);
-                // 创建后立即调用 dismiss
-                IMP newImp = imp_implementationWithBlock(^(id self, id slotID, CGRect frame) {
-                    ((void(*)(id,SEL,id,CGRect))orig)(self, inits[i], slotID, frame);
-                    if (g_blockSplashAd) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [self removeFromSuperview];
-                            NLog(@"🚫 穿山甲开屏已拦截");
-                        });
-                    }
-                });
-                method_setImplementation(m, newImp);
-                NLog(@"  hooked init method");
-                break;
-            }
+        static SEL s_init1 = NULL, s_init2 = NULL;
+        if (!s_init1) { s_init1 = @selector(initWithSlotID:frame:); s_init2 = @selector(initWithSlotID:adSize:); }
+        SEL sel = NULL;
+        Method m = class_getInstanceMethod(splashClass, s_init1);
+        if (m) { sel = s_init1; } else { m = class_getInstanceMethod(splashClass, s_init2); sel = s_init2; }
+        if (m && sel) {
+            IMP orig = method_getImplementation(m);
+            IMP newImp = imp_implementationWithBlock(^(id self, id slotID, CGRect frame) {
+                ((void(*)(id,SEL,id,CGRect))orig)(self, sel, slotID, frame);
+                if (g_blockSplashAd) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self removeFromSuperview];
+                        NLog(@"🚫 穿山甲开屏已拦截");
+                    });
+                }
+            });
+            method_setImplementation(m, newImp);
+            NLog(@"  hooked init method");
         }
     }
 
@@ -304,7 +313,12 @@ static void hookAdMob(void) {
 //  7. 任意 View 摇一摇兜底检测 — Hook CoreMotion
 //  所有广告SDK的摇一摇最终都调 CMMotionManager
 // ════════════════════════════════════════════════════════════
-@interface CMMotionManager (NoAd) @end
+@interface CMMotionManager (NoAd)
+- (void)noad_startAccelerometerUpdates;
+- (void)noad_startAccelerometerUpdatesToQueue:(NSOperationQueue *)queue withHandler:(id)handler;
+- (void)noad_startDeviceMotionUpdates;
+- (void)noad_startDeviceMotionUpdatesToQueue:(NSOperationQueue *)queue withHandler:(id)handler;
+@end
 @implementation CMMotionManager (NoAd)
 + (void)load {
     static dispatch_once_t onceToken;
