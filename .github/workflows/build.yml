@@ -1,0 +1,29 @@
+name: Build NoAd Dylib
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Theos
+        run: |
+          git clone --depth 1 https://github.com/theos/theos.git ~/theos
+          brew install ldid
+
+      - name: Build dylib
+        run: |
+          cd ios_noad
+          export THEOS=~/theos
+          make package FINALPACKAGE=1
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: noad-dylib
+          path: ios_noad/.theos/obj/arm64/noad.dylib

@@ -1,0 +1,8 @@
+Package: com.noad.plugin
+Name: NoAd
+Version: 1.0.0
+Architecture: iphoneos-arm64
+Description: 通用去广告插件 (开屏/摇一摇/横幅) — 适配穿山甲/GDT/百度/快手/Sigmob/AdMob
+Maintainer: NoAd
+Author: NoAd
+Section: Tweaks
