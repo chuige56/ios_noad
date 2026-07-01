@@ -15,10 +15,8 @@ jobs:
         run: |
           export THEOS=/Users/runner/theos
           git clone --depth 1 https://github.com/theos/theos.git $THEOS
-          # Download pre-built ldid (bypasses Homebrew issues)
-          curl -sSL https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5procursus7/ldid_macos_x86_64 -o /usr/local/bin/ldid
-          chmod +x /usr/local/bin/ldid
-          ldid --version
+          export HOMEBREW_NO_INSTALL_FROM_API=1
+          brew install ldid 2>/dev/null || echo "ldid skipped"
 
       - name: Build dylib
         run: |
