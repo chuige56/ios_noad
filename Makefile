@@ -1,7 +1,5 @@
-TARGET = noad.dylib
+TARGET = iphone:clang:latest:14.0
 ARCHS = arm64
-SDK = iphoneos
-THEOS_DEVICE_IP = localhost -p 2222
 
 include $(THEOS)/makefiles/common.mk
 

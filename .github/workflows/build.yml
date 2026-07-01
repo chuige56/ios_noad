@@ -27,4 +27,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: noad-dylib
-          path: .theos/obj/arm64/noad.dylib
+          path: .theos/obj/**/noad.dylib
