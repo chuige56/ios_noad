@@ -16,7 +16,6 @@
 static void hookBytedance(void);
 static void hookGDT(void);
 static void hookBaidu(void);
-static void hookKuaishou(void);
 static void hookSigmob(void);
 static void hookAdMob(void);
 static void hookWeChat(void);
@@ -44,7 +43,7 @@ static void swizzle(Class cls, SEL orig, SEL repl) {
         NLog(@"swizzled: %@.%@", NSStringFromClass(cls), NSStringFromSelector(orig));
     }
 }
-static void swizzleClass(Class cls, SEL orig, SEL repl) {
+__attribute__((unused)) static void swizzleClass(Class cls, SEL orig, SEL repl) {
     Method m1 = class_getClassMethod(cls, orig);
     Method m2 = class_getClassMethod(cls, repl);
     if (m1 && m2) {
